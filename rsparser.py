@@ -6,18 +6,17 @@ import pandas
 import regex
 
 
-class Patterns:
-    HYBR = r'(?:×\s?)?'
-    BRKT = r'(?:\([^)]+\)\s?)?'
-    INFSP_RANK = r'\b(?i:f|ssp|subsp|var)\.'
-    LOWER_TAXA = r'\p{Ll}{3,}(?:-?\p{Ll}{3,})?'
-    LVL_GRPS = rf'^{HYBR}\pL+\s(\pL+).+?{INFSP_RANK}\s(\pL+)'
-    INFSP_TAIL = rf'{INFSP_RANK}\s[\p{{Ll}}-]+\K.*'
-    LOWERCASE = rf'^{HYBR}[A-Z]\K\pL+\s[\pL-]+|[^.]\K{INFSP_RANK}\s[\pL-]+'
-    PREFIX = rf'^{HYBR}[A-Z]\p{{Ll}}+\s{HYBR}{LOWER_TAXA}'
-    head = rf'{PREFIX}\s?(?:{BRKT}\p{{Lu}}|{INFSP_RANK})'
-    taxa = rf"{PREFIX}(\s?{BRKT}(?:\pL{{1,3}}\s){{0,2}}(\p{{Lu}}[\pL\pM.'-]+(?:\sf\.)?)(?:,\s(?2)(?=\s&))?((?:\s(?:&|ex)\s(?2))?)(?3))(?:\s(?:×|{INFSP_RANK})\s?{LOWER_TAXA}(?1)?)?"
-    elev = r'(?:\b|\pL)\K\d+(?:\s?-\s?\d+)?(?=\s?m\b)'
+HYBR = r'(?:×\s?)?'
+BRKT = r'(?:\([^)]+\)\s?)?'
+INFSP_RANK = r'\b(?i:f|ssp|subsp|var)\.'
+LOWER_TAXA = r'\p{Ll}{3,}(?:-?\p{Ll}{3,})?'
+LVL_GRPS = rf'^{HYBR}\pL+\s(\pL+).+?{INFSP_RANK}\s(\pL+)'
+INFSP_TAIL = rf'{INFSP_RANK}\s[\p{{Ll}}-]+\K.*'
+LOWERCASE = rf'^{HYBR}[A-Z]\K\pL+\s[\pL-]+|[^.]\K{INFSP_RANK}\s[\pL-]+'
+PREFIX = rf'^{HYBR}[A-Z]\p{{Ll}}+\s{HYBR}{LOWER_TAXA}'
+head = rf'{PREFIX}\s?(?:{BRKT}\p{{Lu}}|{INFSP_RANK})'
+taxa = rf"{PREFIX}(\s?{BRKT}(?:\pL{{1,3}}\s){{0,2}}(\p{{Lu}}[\pL\pM.'-]+(?:\sf\.)?)(?:,\s(?2)(?=\s&))?((?:\s(?:&|ex)\s(?2))?)(?3))(?:\s(?:×|{INFSP_RANK})\s?{LOWER_TAXA}(?1)?)?"
+elev = r'(?:\b|\pL)\K\d+(?:\s?-\s?\d+)?(?=\s?m\b)'
 
 
 class Regex:
@@ -81,9 +80,9 @@ class File:
 
 class Parser:
     def __init__(self, text, opts):
-        self.head = Regex(Patterns.head)
-        self.taxa = Regex(Patterns.taxa)
-        self.elev = Regex(Patterns.elev)
+        self.head = Regex(head)
+        self.taxa = Regex(taxa)
+        self.elev = Regex(elev)
         self.text = text
         self.opts = opts
         self.data = []
@@ -168,16 +167,16 @@ class Parser:
 
 
 def _taxa_to_lower(string):
-    return regex.sub(Patterns.LOWERCASE, lambda x: x.group().lower(), string)
+    return regex.sub(LOWERCASE, lambda x: x.group().lower(), string)
 
 def _clean_taxa(string):
     patterns = [(r'^[^A-Za-z]+|(?!\.)[^\pL]+$', ''), (r'\s+', ' ')]
     string = msub(patterns, string)
     if any(x in string for x in [' f.', ' ssp.', ' subsp.', ' var.']):
-        taxa_lvl = regex.search(Patterns.LVL_GRPS, string.replace('-', ''))
+        taxa_lvl = regex.search(LVL_GRPS, string.replace('-', ''))
         try:
             infsp_is_sp = taxa_lvl.group(1) == taxa_lvl.group(2)
-            string = regex.sub(Patterns.INFSP_TAIL, '', string) if infsp_is_sp else string
+            string = regex.sub(INFSP_TAIL, '', string) if infsp_is_sp else string
         except AttributeError:
             pass
     return string
