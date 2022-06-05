@@ -87,7 +87,7 @@ class Parser:
         self.text = text
         self.opts = opts
         self.data = []
-        self.tmp = ''
+        self.lines = []
         if self.opts.case in ['U', 'uppercase']:
             self.head, self.taxa = [x.to_upper for x in [self.head, self.taxa]]
         if self.opts.parse_elevs:
@@ -113,21 +113,22 @@ class Parser:
             elif self.opts.start and skip:
                 continue
             elif not parse_elevs and regex.search(head, line) and regex.search(tail, line):
-                self.tmp += f'\n{line}'
+                self.lines.append(f'\n{line}')
                 flag = 0
             elif regex.search(head, line):
-                self.tmp += f'\n{line};'
+                self.lines.append(f'\n{line};')
                 flag = 1
             elif not parse_elevs and flag and regex.search(tail, line):
-                self.tmp += f' {line}'
+                self.lines.append(f' {line}')
                 flag = 0
             elif flag:
-                self.tmp += f' {line}'
+                self.lines.append(f' {line}')
             else:
                 continue
 
     def extract_data(self):
-        for line in self.tmp.splitlines():
+        content = ''.join(self.lines)
+        for line in content.splitlines():
             try:
                 elev = self.get_elev(line)
             except (TypeError, ValueError):
