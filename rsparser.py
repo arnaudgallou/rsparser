@@ -71,7 +71,7 @@ class File:
             (r"[`'‘’“”\"]+", "'"),
             (r'\b(?:et|and)\b', '&'),
             (r'\b\p{Lu}\.\K\s(?=\p{Lu})|\p{Ll}(?:\K-\n(?=\p{Ll})|-\K\n(?=\p{Lu}))|\n\K\d{1,3}\n|\d-\K\s+(?=\d+ ?(?:m|ft)\b)', ''),
-            (r'(?:\([\pL. ]+|[\p{Ll}.]\)|&|\bex)\K\n|\p{Ll}{2,}\K(?=\p{Lu})|\b(?i:f|ssp|subsp|var)\.(?:\s?[a-z-]+)?\K\n|\d\K\n(?=m\b)', ' ')
+            (r'(?:\([\pL. ]+|[\p{Ll}.]\)|&|\bex)\K\n|\p{Ll}{2,}\K(?=\p{Lu})|(\b(?i:f|ssp|subsp|var)\.)(?:\s?[a-z-]+)?\K\n|\d\K\n(?=m\b)|\n(?=(?1))', ' ')
         ]
         if patterns:
             subst += [x for x in patterns]
